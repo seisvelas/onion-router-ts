@@ -62,7 +62,9 @@ app.get('/session', (req, res) => {
 });
 const forwardRoute = async (res, decryptedPayload) => {
     try {
-        let routeRequest = await axios_1.default.post(`${decryptedPayload.next}/route`, { a: 1 });
+        console.log('Routing request to:');
+        console.table(decryptedPayload);
+        let routeRequest = await axios_1.default.post(`http://${decryptedPayload.next}/route`, decryptedPayload.remainingPayload);
         let routeResponse = routeRequest.data;
         // obvious we need to be encrypting this data on it's way home (which would
         // likewise be a great time to delete sessions). For now let's just get this to work.
@@ -70,6 +72,7 @@ const forwardRoute = async (res, decryptedPayload) => {
         res.end(routeResponse);
     }
     catch (e) {
+        console.log(e);
         res.end('Could not route request');
     }
 };
@@ -95,8 +98,11 @@ app.post('/route', (req, res) => {
                 could proxy any TCP traffic, just like Tor.
             */
             // we need to encrypt this. For now let's just see if it works at all!
-            axios_1.default.get(`${decryptedPayload.next}`)
-                .then(response => res.end(response));
+            return axios_1.default.get(`http://${decryptedPayload.next}`)
+                .then(response => {
+                console.log(response.data);
+                res.end(response.data);
+            });
         }
     }
     forwardRoute(res, decryptedPayload);

@@ -98,7 +98,7 @@ interface OnionRequest {
 interface decryptedPayload {
     next: string,
     nextType: relayKind,
-    remainingPayload: {
+    remainingPayload?: {
         payload: number[],
         sessionId: string
     }
@@ -106,13 +106,16 @@ interface decryptedPayload {
 
 const forwardRoute = async (res: any, decryptedPayload: decryptedPayload) => {
     try {
-        let routeRequest = await axios.post(`${decryptedPayload.next}/route`, {a:1})
+        console.log('Routing request to:');
+        console.table(decryptedPayload);
+        let routeRequest = await axios.post(`http://${decryptedPayload.next}/route`, decryptedPayload.remainingPayload);
         let routeResponse = routeRequest.data;
         // obvious we need to be encrypting this data on it's way home (which would
         // likewise be a great time to delete sessions). For now let's just get this to work.
         // See similar comment on exit relay code.
         res.end(routeResponse);
     } catch (e) {
+        console.log(e)
         res.end('Could not route request');
     }
 }
@@ -122,7 +125,7 @@ app.post('/route', (req, res) => {
     let session:Session = sessions.find(({ sessionId }) => sessionId === route.sessionId) as Session;
 
     var aesCtr = new aesjs.ModeOfOperation.ctr(session.key);
-    var decryptedBytes = aesCtr.decrypt(route.payload);
+    var decryptedBytes = aesCtr.decrypt(route.payload as number[]);
  
 // Convert our bytes back into text
     var decryptedPayload:decryptedPayload = JSON.parse(aesjs.utils.utf8.fromBytes(decryptedBytes));
@@ -142,8 +145,11 @@ app.post('/route', (req, res) => {
             */
 
             // we need to encrypt this. For now let's just see if it works at all!
-            axios.get(`${decryptedPayload.next}`)
-            .then(response => res.end(response));
+            return axios.get(`http://${decryptedPayload.next}`)
+            .then(response => {
+                console.log(response.data)
+                res.end(response.data)
+            });
         }
     }
 
