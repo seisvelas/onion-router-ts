@@ -1,0 +1,20 @@
+{
+  "name": "onion_net_ts",
+  "version": "1.0.0",
+  "description": "Simple Onion network in TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc",
+    "client": "npm run tsc && node build/client.js"
+  },
+  "author": "Maximiliano Dante IV",
+  "license": "ISC",
+  "dependencies": {
+    "@types/aes-js": "^3.1.1",
+    "@types/express": "^4.17.6",
+    "aes-js": "^3.1.2",
+    "axios": "^0.19.2",
+    "express": "^4.17.1"
+  }
+}
