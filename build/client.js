@@ -5,13 +5,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const aes_js_1 = __importDefault(require("aes-js"));
+const yargs_1 = require("yargs");
+const directoryAuthority = yargs_1.argv.dirauth || 'http://localhost:9001';
+// we will make a get request to next and get the results back
 const payload = {
     next: 'localhost/secret.txt',
     nextType: 'cleartext'
 };
-const directoryAuthority = 'http://localhost:9001';
-;
-;
 axios_1.default.get(`${directoryAuthority}/list`).then(res => {
     // get all relays
     const relays = res.data;
@@ -51,6 +51,10 @@ axios_1.default.get(`${directoryAuthority}/list`).then(res => {
         payload: Array.from(encryptedBytes)
     };
     // Make Middle payload
+    /*
+        A better approach would be to make the middle an array of relays,
+        in case we want more than 3 hops
+    */
     payloadBytes = aes_js_1.default.utils.utf8.toBytes(JSON.stringify({
         next: circuit.exitRelay.name,
         nextType: 'exit',

@@ -2,6 +2,10 @@
 // is called Bastet and say interesting stuff.
 
 import express = require('express');
+import axios from 'axios';
+import {
+    Relay
+} from './types.d'
 
 /*
     Lots of scattered 'utility' functions that
@@ -13,22 +17,30 @@ import express = require('express');
 // Eventually, name and kind should be command-line supplied (all optional)
 // with key being a filename. If they aren't supplied they'll be generated at random, which
 // is all I'll got fer now.
-interface Relay {
-    name: string,
-    kind: 'entry' | 'middle' | 'exit'
-}
 
 // I'll crank up the complexity
 // by throwing in some global state!
 const relayPool: Relay[] = [];
 
-const kickDeadRelays = (relayPool: Relay[]): void => {
-    // TODO: Ping all relays (Promise.all?)
-    // NB - This goes in a setInterval
+const kickDeadRelays = async (relayPool: Relay[]) => {
+    console.log(relayPool);
+    for (let i = 0; i < relayPool.length; i++) {
+        let relay:Relay = relayPool[i];
+        try {
+            let response = await axios.get(`http://${relay.name}/ping`, { timeout: 2000 });
+            if (response.data !== 'ping') {
+                throw new Error('Relay did not return ping: ' + relay.name);
+            }
+        } catch (e) {
+            relayPool.splice(i, 1);
+            i--;
+            console.log(`unresponsive relay: ${relay.name}`);
+            console.log(`error: ${e}`);
+        }
+    }
 }
-/*
-setInterval(()=>kickDeadRelays(relayPool), 20000);
-*/
+
+setInterval(()=>kickDeadRelays(relayPool), 60000);
 
 const app: express.Application = express();
 

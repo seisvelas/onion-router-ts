@@ -1,24 +1,21 @@
 import axios from 'axios';
 import aesjs from 'aes-js';
+import { argv } from 'yargs';
+import {
+    Relay,
+    decryptedPayload
+} from './types.d'
 
-const payload = {
-    next: 'localhost/secret.txt',
-    nextType: 'cleartext'
-}
+const directoryAuthority = argv.dirauth || 'http://localhost:9001';
 
-const directoryAuthority = 'http://localhost:9001';
-
-interface Session {
-    readonly sessionId: string,
-    readonly key: number[],
-    readonly timestamp: Date
-};
-
-type relayKind = 'entry' | 'middle' | 'exit' | 'cleartext';
-interface Relay {
-    name: string,
-    kind: relayKind,
-    session?: Session
+// we will make a get request to next and get the results back
+const payload: decryptedPayload = {
+    next: '',
+    nextType: 'cleartext',
+    finalPayload: {
+        method: 'get',
+        url: 'http://localhost/secret.txt',
+    }
 };
 
 axios.get(`${directoryAuthority}/list`).then( res => {
@@ -67,7 +64,10 @@ axios.get(`${directoryAuthority}/list`).then( res => {
 
     // Make Middle payload
 
-
+    /*
+        A better approach would be to make the middle an array of relays,
+        in case we want more than 3 hops
+    */
     payloadBytes = aesjs.utils.utf8.toBytes(JSON.stringify({
         next: circuit.exitRelay.name,
         nextType: 'exit',
@@ -103,5 +103,4 @@ axios.get(`${directoryAuthority}/list`).then( res => {
 }).then(({data}) => {
     console.log(data);
 })
-// then ANOTHER .then to build + send the request!
 .catch( e => console.log(e));

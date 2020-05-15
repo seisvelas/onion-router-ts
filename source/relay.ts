@@ -16,39 +16,34 @@ import { AddressInfo } from 'net';
 import axios from 'axios';
 import aesjs from 'aes-js';
 import crypto from'crypto';
+import { argv } from 'yargs';
+import {
+    Relay,
+    Session,
+    relayKind,
+    decryptedPayload,
+    OnionRequest
+} from './types.d'
 
-const directoryAuthority = 'http://localhost:9001';
+const directoryAuthority = argv.dirauth || 'http://localhost:9001';
 
-/*
-    Lots of scattered 'utility' functions that
-    lack an obvious home are a kind of code smell.
-    TODO: Architect strong, logical structure
-    for accomodating functions like kickDeadRelays et al.
-*/
-
-const kickDeadRelays = (): void => {
-    // TODO: Ping all relays (Promise.all?)
-    // NB - This goes in a setInterval
-}
-
-// Eventually, name and kind should be command-line supplied (all optional)
-// with key being a filename. If they aren't supplied they'll be generated at random, which
-// is all I'll got fer now.
-type relayKind = 'entry' | 'middle' | 'exit' | 'cleartext';
-interface Relay {
-    name: string,
-    kind: relayKind
-};
-
-interface Session {
-    readonly sessionId: string,
-    readonly key: number[],
-    readonly timestamp: Date
-};
 
 const sessions: Session[] = []
+const expireSessions = async (sessions: Session[]) => {
+    console.log(sessions);
+    for (let i = 0; i < sessions.length; i++) {
+        let session:Session = sessions[i];
+        const timestamp = session.timestamp;
 
-var kind:relayKind = (process.argv[2] || 'middle') as relayKind;
+        if (+new Date() - +timestamp > 1000 * 60 * 2) { // If the session is >1 minute old
+            sessions.splice(i, 1);
+            i--;
+        }
+    }
+}
+setInterval(()=>expireSessions(sessions), 60000);
+
+var kind:relayKind = (argv.type || 'middle') as relayKind;
 var relay: Relay;
 
 const app: express.Application = express();
@@ -89,20 +84,6 @@ app.get('/session', (req, res) => {
 
     res.json(session);
 });
-
-interface OnionRequest {
-    sessionId: string,
-    payload: number[]
-}
-
-interface decryptedPayload {
-    next: string,
-    nextType: relayKind,
-    remainingPayload?: {
-        payload: number[],
-        sessionId: string
-    }
-}
 
 const forwardRoute = async (res: any, decryptedPayload: decryptedPayload) => {
     try {
@@ -145,7 +126,7 @@ app.post('/route', (req, res) => {
             */
 
             // we need to encrypt this. For now let's just see if it works at all!
-            return axios.get(`http://${decryptedPayload.next}`)
+            return axios(decryptedPayload.finalPayload)
             .then(response => {
                 console.log(response.data)
                 res.end(response.data)
@@ -157,6 +138,7 @@ app.post('/route', (req, res) => {
 });
 
 const server = app.listen(0, () => {
+    // The relay is defined here, because we need to know which ephemeral port we'll be listening on
     let { port } = server?.address() as AddressInfo;
     relay = {
         name: `localhost:${port}`, // blah blah blah command line parsing blah blah (even then, the machine's hostname would be a saner default than 'localhost')
