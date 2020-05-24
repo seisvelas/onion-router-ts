@@ -4,7 +4,7 @@ This is a learning project to create a minimalist Onion Router in TypeScript.
 
 ## Todo
 
-- [ ] Support more than just GET requests
-- [ ] Interface (Firefox Addon?)
-- [ ] Hidden Services
+- [ ] Browser extension
+- [ ] Make entry point into 'conventional' proxy protocol (like SOCKS5)
 - [ ] Diffie–Hellman key exchange
+- [ ] HTTPS
