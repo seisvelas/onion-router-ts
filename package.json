@@ -6,7 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc",
-    "client": "npm run tsc && node build/client.js"
+    "build": "npm run tsc",
+    "directory": "node build/directoryAuthority.js",
+    "entry": "node build/relay --type=entry",
+    "middle": "node build/relay --type=middle",
+    "exit": "node build/relay --type=exit",
+    "circuit": "npm-run-all --parallel entry middle exit",
+    "network": "npm-run-all --parallel directory circuit",
+    "client": "node build/client.js"
   },
   "author": "Maximiliano Dante IV",
   "license": "ISC",
@@ -17,6 +24,7 @@
     "aes-js": "^3.1.2",
     "axios": "^0.19.2",
     "express": "^4.17.1",
+    "npm-run-all": "^4.1.5",
     "yargs": "^15.3.1"
   }
 }

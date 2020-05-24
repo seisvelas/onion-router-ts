@@ -14,7 +14,7 @@ const payload: decryptedPayload = {
     nextType: 'cleartext',
     finalPayload: {
         method: 'get',
-        url: 'http://localhost/secret.txt',
+        url: 'http://google.com/',
     }
 };
 

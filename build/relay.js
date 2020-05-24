@@ -20,8 +20,18 @@ const crypto_1 = __importDefault(require("crypto"));
 const yargs_1 = require("yargs");
 const directoryAuthority = yargs_1.argv.dirauth || 'http://localhost:9001';
 const sessions = [];
-const expireSessions = (sessions) => {
+const expireSessions = async (sessions) => {
+    console.log(sessions);
+    for (let i = 0; i < sessions.length; i++) {
+        let session = sessions[i];
+        const timestamp = session.timestamp;
+        if (+new Date() - +timestamp > 1000 * 60 * 2) { // If the session is >1 minute old
+            sessions.splice(i, 1);
+            i--;
+        }
+    }
 };
+setInterval(() => expireSessions(sessions), 60000);
 var kind = (yargs_1.argv.type || 'middle');
 var relay;
 const app = express_1.default();
@@ -89,10 +99,11 @@ app.post('/route', (req, res) => {
                 could proxy any TCP traffic, just like Tor.
             */
             // we need to encrypt this. For now let's just see if it works at all!
-            return axios_1.default.get(`http://${decryptedPayload.next}`)
+            return axios_1.default(decryptedPayload.finalPayload)
                 .then(response => {
-                console.log(response.data);
-                res.end(response.data);
+                res.end(response);
+            }).catch(e => {
+                res.end(e);
             });
         }
     }

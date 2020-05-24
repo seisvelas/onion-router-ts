@@ -9,8 +9,12 @@ const yargs_1 = require("yargs");
 const directoryAuthority = yargs_1.argv.dirauth || 'http://localhost:9001';
 // we will make a get request to next and get the results back
 const payload = {
-    next: 'localhost/secret.txt',
-    nextType: 'cleartext'
+    next: '',
+    nextType: 'cleartext',
+    finalPayload: {
+        method: 'get',
+        url: 'http://google.com/',
+    }
 };
 axios_1.default.get(`${directoryAuthority}/list`).then(res => {
     // get all relays
@@ -83,6 +87,5 @@ axios_1.default.get(`${directoryAuthority}/list`).then(res => {
 }).then(({ data }) => {
     console.log(data);
 })
-    // then ANOTHER .then to build + send the request!
     .catch(e => console.log(e));
 //# sourceMappingURL=client.js.map

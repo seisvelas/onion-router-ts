@@ -27,7 +27,6 @@ import {
 
 const directoryAuthority = argv.dirauth || 'http://localhost:9001';
 
-
 const sessions: Session[] = []
 const expireSessions = async (sessions: Session[]) => {
     console.log(sessions);
@@ -128,8 +127,9 @@ app.post('/route', (req, res) => {
             // we need to encrypt this. For now let's just see if it works at all!
             return axios(decryptedPayload.finalPayload)
             .then(response => {
-                console.log(response.data)
-                res.end(response.data)
+                res.end(response);
+            }).catch(e => {
+                res.end(e);
             });
         }
     }
