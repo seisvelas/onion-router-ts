@@ -1,6 +1,14 @@
 # TypeScript Onion Router
 
-This is a learning project to create a minimalist Onion Router in TypeScript. 
+This is a learning project to create a minimalist Onion Router in TypeScript.
+
+# How do I use it?
+
+Don't - This is purely educational
+
+# I'm using it anyway
+
+In that case, 
 
 ## Todo
 
