@@ -17,3 +17,4 @@ Then you can run `npm run client` to make a request. Right now it will just do a
 - [ ] Make entry point into 'conventional' proxy protocol (like SOCKS5)
 - [ ] Diffie–Hellman key exchange
 - [ ] HTTPS
+- [ ] Add hidden services
