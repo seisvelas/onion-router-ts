@@ -6,6 +6,8 @@ This is a learning project to create a minimalist Onion Router in TypeScript.
 
 Don't - This is purely educational
 
+`npm run circuit` will start an entry, relay, and exit node. 
+
 # I'm using it anyway
 
 In that case, 
