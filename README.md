@@ -10,9 +10,6 @@ Don't - This is purely educational
 
 Then you can run `npm run client` to make a request. Right now it will just do a request to a hardcoded URL, but you can change that in source/client.ts (I will make it more generalized soon I promise)
 
-# I'm using it anyway
-
-In that case, 
 
 ## Todo
 
