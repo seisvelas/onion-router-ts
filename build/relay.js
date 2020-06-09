@@ -63,8 +63,6 @@ app.get('/session', (req, res) => {
 });
 const forwardRoute = async (res, decryptedPayload) => {
     try {
-        console.log('Routing request to:');
-        console.table(decryptedPayload);
         let routeRequest = await axios_1.default.post(`http://${decryptedPayload.next}/route`, decryptedPayload.remainingPayload);
         let routeResponse = routeRequest.data;
         // obvious we need to be encrypting this data on it's way home (which would
@@ -88,6 +86,7 @@ app.post('/route', (req, res) => {
     // and depending on our relay type we will pass it along (or not)
     if (decryptedPayload.nextType === 'cleartext') {
         if (kind !== 'exit') {
+            console.log('not in exit');
             return res.end('Cannot exit from middle relay');
         }
         else {
@@ -99,14 +98,20 @@ app.post('/route', (req, res) => {
                 could proxy any TCP traffic, just like Tor.
             */
             // we need to encrypt this. For now let's just see if it works at all!
+            console.log(decryptedPayload.finalPayload, kind);
             return axios_1.default(decryptedPayload.finalPayload)
                 .then(response => {
-                res.end(response);
+                console.log('here is the response');
+                console.log(response);
+                res.end(JSON.stringify(response));
             }).catch(e => {
+                console.log('the request is bad...');
                 res.end(e);
             });
         }
     }
+    console.log(kind);
+    console.log('here forwarding along');
     forwardRoute(res, decryptedPayload);
 });
 const server = app.listen(0, () => {

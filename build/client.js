@@ -13,7 +13,7 @@ const payload = {
     nextType: 'cleartext',
     finalPayload: {
         method: 'get',
-        url: 'http://google.com/',
+        url: 'http://localhost/',
     }
 };
 axios_1.default.get(`${directoryAuthority}/list`).then(res => {
@@ -47,9 +47,11 @@ axios_1.default.get(`${directoryAuthority}/list`).then(res => {
     var _a, _b, _c, _d, _e, _f;
     // Here we will build our payload and send it through the network!!!!
     var payloadBytes = aes_js_1.default.utils.utf8.toBytes(JSON.stringify(payload));
+    console.log('weve got the bytes');
     // The counter is optional, and if omitted will begin at 1
     var aesCtr = new aes_js_1.default.ModeOfOperation.ctr((_a = circuit.exitRelay.session) === null || _a === void 0 ? void 0 : _a.key);
     var encryptedBytes = aesCtr.encrypt(payloadBytes);
+    console.log('we encrypted a thing');
     let exitPayload = {
         sessionId: (_b = circuit.exitRelay.session) === null || _b === void 0 ? void 0 : _b.sessionId,
         payload: Array.from(encryptedBytes)
